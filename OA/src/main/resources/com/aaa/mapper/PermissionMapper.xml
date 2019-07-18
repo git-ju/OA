@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+          "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+          
+ <mapper namespace="com.aaa.idao.IPermissionDao">
+   	<!-- 查询权限方法 -->
+ 	<select id="findByLoginRole" resultType="map" parameterType="int">
+ 		select * from Permission 
+	 	where PermID in
+	 		(select PermID from RolePerm where RoleID =#{RoleID})
+ 	</select>
+ 	<!-- 登录方法 -->
+ 	<select id="login" resultType="map" parameterType="userVo">
+ 		select * from User where 
+ 		Uname=#{Uname} and Upwd=#{Upwd}
+ 	</select>
+ 	<!-- 查询员工个人资料 -->
+ 	<select id="getUser" resultType="map" >
+ 	 	<if test="rid==1">
+ 	 		select * from user left join
+	 		role on user.roleid=role.roleid
+			where UID=#{uid}
+ 	 	</if>		
+		<if test="rid!=1">
+				select r.RoleID,RoleName,TopRoleID,r.DeptID DeptID,UID,Uname,Upwd,
+				Url,Sex,Phone,Birthday,InDate,RegularDate,TakeOfficeState,WorkState,DeptName
+				from  Role r inner join
+				User u on u.RoleID=r.RoleID
+				inner join Dept d on r.DeptID=d.DeptID
+				where u.UID=#{uid}
+		</if>
+ 	</select>
+ 	<!-- 修改密码 -->
+ 	<update id="updPwd" parameterType="userVo">
+ 		update User set Upwd=#{Upwd} where UID=#{Uid}
+ 	</update>
+ 	<!-- 系统日志 -->
+ 	<insert id="sysLog" parameterType="sysLogVo">
+ 		insert into SysLog(UID,LoginDate) values(#{UID},now())
+ 	</insert>
+ 	<!-- 查看部门 -->
+ 	<select id="getDept" resultType="map">
+ 		select * from Dept
+ 	</select>
+ 	<!-- 查看员工 -->
+ 	<select id="getRole" resultType="map">
+ 		select * from Role
+ 	</select>
+ 	<!-- 查看所有员工信息 -->
+ 	<select id="getAlluser" resultType="map">
+ 		select * from user left join
+ 		role on user.roleid=role.roleid
+		left join dept on dept.deptid=role.deptid
+ 	</select>
+ 	<!-- 根据id查询员工详细信息 -->
+ 	<select id="getMessage" resultType="map">
+ 		select * from user left join
+ 		role on user.roleid=role.roleid
+		left join dept on dept.deptid=role.deptid
+		where UID=#{uid}
+ 	</select>
+ 	<!-- 删除员工 -->
+ 	<delete id="delUser" parameterType="String">
+ 		delete table user where uid=#{uid}
+ 	</delete>
+ 	<!-- 修改：根据id查询绑定 -->
+ 	<select id="getUserID" resultType="map">
+ 		select * from user left join
+ 		role on user.roleid=role.roleid
+		left join dept on dept.deptid=role.deptid
+		where UID=#{uid}
+ 	</select>
+ 	<!-- 修改员工信息 -->
+ 	<update id="updUser" parameterType="userVo">
+ 		update user set Uname=#{Uname},Sex=#{Sex},
+ 		Phone=#{Phone},Birthday=#{Birthday},InDate=#{InDate},
+ 		RegularDate=#{RegularDate},TakeOfficeState=#{TakeOfficeState},
+ 		WorkState=#{workState},DeptID=#{DeptID},RoleID=#{RoleID}
+ 		where UID=#{UID}
+ 	</update>
+ </mapper> 
